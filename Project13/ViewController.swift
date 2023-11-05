@@ -47,7 +47,26 @@ final class ViewController: UIViewController {
     private func applyProcessing() {
         guard let image = currentFilter.outputImage else { return }
         
-        currentFilter.setValue(intensity.value, forKey: kCIInputIntensityKey)
+        let inputKeys = currentFilter.inputKeys
+        
+        if inputKeys.contains(kCIInputIntensityKey) {
+            currentFilter.setValue(intensity.value, forKey: kCIInputIntensityKey)
+        }
+        
+        if inputKeys.contains(kCIInputRadiusKey) {
+            currentFilter.setValue(intensity.value * 200, forKey: kCIInputRadiusKey)
+        }
+        
+        if inputKeys.contains(kCIInputScaleKey) {
+            currentFilter.setValue(intensity.value * 10, forKey: kCIInputScaleKey)
+        }
+        
+        if inputKeys.contains(kCIInputCenterKey) {
+            currentFilter.setValue(
+                CIVector(x: currentImage.size.width / 2, y: currentImage.size.height / 2),
+                forKey: kCIInputCenterKey
+            )
+        }
         
         if let cgImage = context.createCGImage(image, from: image.extent) {
             let processedImage = UIImage(cgImage: cgImage)
@@ -55,9 +74,39 @@ final class ViewController: UIViewController {
         }
     }
     
+    private func showFiltersAlert() {
+        let filters = ["CIBumpDistortion", "CIGaussianBlur", "CIPixellate", "CISepiaTone", "CITwirlDistortion", "CIUnsharpMask", "CIVignette"]
+        let alertController = UIAlertController(title: "Choose filter", message: nil, preferredStyle: .actionSheet)
+        
+        filters.forEach {
+            alertController.addAction(UIAlertAction(title: $0, style: .default, handler: setFilter))
+        }
+        
+        alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        present(alertController, animated: true)
+    }
+    
+    private func setCurrentImageAsInput() {
+        currentFilter.setValue(CIImage(image: currentImage), forKey: kCIInputImageKey)
+    }
+    
+    @objc
+    private func setFilter(action: UIAlertAction) {
+        guard
+            currentImage != nil,
+            let actionTitle = action.title
+        else { return }
+        
+        currentFilter = CIFilter(name: actionTitle)
+        
+        setCurrentImageAsInput()
+        applyProcessing()
+    }
+    
     // MARK: - IBActions
 
     @IBAction func changeFilter(_ sender: Any) {
+        showFiltersAlert()
     }
     
     @IBAction func save(_ sender: Any) {
@@ -81,9 +130,7 @@ extension ViewController: UIImagePickerControllerDelegate, UINavigationControlle
         
         currentImage = image
         
-        let inputImage = CIImage(image: currentImage)
-        currentFilter.setValue(inputImage, forKey: kCIInputImageKey)
-        
+        setCurrentImageAsInput()
         applyProcessing()
     }
 }
