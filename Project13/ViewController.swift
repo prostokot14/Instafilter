@@ -5,6 +5,7 @@
 //  Created by Антон Кашников on 04/11/2023.
 //
 
+import CoreImage
 import UIKit
 
 final class ViewController: UIViewController {
@@ -16,6 +17,8 @@ final class ViewController: UIViewController {
     // MARK: - Private properties
     
     private var currentImage: UIImage!
+    private var context: CIContext!
+    private var currentFilter: CIFilter!
     
     // MARK: - UIViewController
     
@@ -26,6 +29,9 @@ final class ViewController: UIViewController {
         navigationItem.rightBarButtonItem = UIBarButtonItem(
             barButtonSystemItem: .add, target: self, action: #selector(importPicture)
         )
+        
+        context = CIContext()
+        currentFilter = CIFilter(name: "CISepiaTone")
     }
     
     // MARK: - Private methods
