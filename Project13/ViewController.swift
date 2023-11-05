@@ -36,14 +36,6 @@ final class ViewController: UIViewController {
     
     // MARK: - Private methods
     
-    @objc
-    private func importPicture() {
-        let imagePickerController = UIImagePickerController()
-        imagePickerController.allowsEditing = true
-        imagePickerController.delegate = self
-        present(imagePickerController, animated: true)
-    }
-    
     private func applyProcessing() {
         guard let image = currentFilter.outputImage else { return }
         
@@ -91,6 +83,30 @@ final class ViewController: UIViewController {
     }
     
     @objc
+    private func image(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeRawPointer) {
+        let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .alert)
+        
+        if let error {
+            alertController.title = "Save error"
+            alertController.message = error.localizedDescription
+        } else {
+            alertController.title = "Saved!"
+            alertController.message = "Your altered image has been saved to your photos."
+        }
+        
+        alertController.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alertController, animated: true)
+    }
+    
+    @objc
+    private func importPicture() {
+        let imagePickerController = UIImagePickerController()
+        imagePickerController.allowsEditing = true
+        imagePickerController.delegate = self
+        present(imagePickerController, animated: true)
+    }
+    
+    @objc
     private func setFilter(action: UIAlertAction) {
         guard
             currentImage != nil,
@@ -105,11 +121,14 @@ final class ViewController: UIViewController {
     
     // MARK: - IBActions
 
-    @IBAction func changeFilter(_ sender: Any) {
+    @IBAction func changeFilter(_ sender: UIButton) {
         showFiltersAlert()
     }
     
-    @IBAction func save(_ sender: Any) {
+    @IBAction func save(_ sender: UIButton) {
+        guard let image = imageView.image else { return }
+        
+        UIImageWriteToSavedPhotosAlbum(image, self, #selector(image(_:didFinishSavingWithError:contextInfo:)), nil)
     }
     
     @IBAction func intensityChanged(_ sender: Any) {
