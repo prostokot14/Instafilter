@@ -12,7 +12,7 @@ final class ViewController: UIViewController {
     // MARK: - IBOutlets
     
     @IBOutlet var imageView: UIImageView!
-    @IBOutlet var intensity: UILabel!
+    @IBOutlet var intensity: UISlider!
     
     // MARK: - Private properties
     
@@ -44,6 +44,17 @@ final class ViewController: UIViewController {
         present(imagePickerController, animated: true)
     }
     
+    private func applyProcessing() {
+        guard let image = currentFilter.outputImage else { return }
+        
+        currentFilter.setValue(intensity.value, forKey: kCIInputIntensityKey)
+        
+        if let cgImage = context.createCGImage(image, from: image.extent) {
+            let processedImage = UIImage(cgImage: cgImage)
+            imageView.image = processedImage
+        }
+    }
+    
     // MARK: - IBActions
 
     @IBAction func changeFilter(_ sender: Any) {
@@ -53,6 +64,7 @@ final class ViewController: UIViewController {
     }
     
     @IBAction func intensityChanged(_ sender: Any) {
+        applyProcessing()
     }
 }
 
@@ -68,5 +80,10 @@ extension ViewController: UIImagePickerControllerDelegate, UINavigationControlle
         dismiss(animated: true)
         
         currentImage = image
+        
+        let inputImage = CIImage(image: currentImage)
+        currentFilter.setValue(inputImage, forKey: kCIInputImageKey)
+        
+        applyProcessing()
     }
 }
