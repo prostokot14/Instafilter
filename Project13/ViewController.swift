@@ -11,8 +11,9 @@ import UIKit
 final class ViewController: UIViewController {
     // MARK: - IBOutlets
     
-    @IBOutlet var imageView: UIImageView!
-    @IBOutlet var intensity: UISlider!
+    @IBOutlet private var imageView: UIImageView!
+    @IBOutlet private var intensity: UISlider!
+    @IBOutlet private var changeFilterButton: UIButton!
     
     // MARK: - Private properties
     
@@ -114,6 +115,8 @@ final class ViewController: UIViewController {
         else { return }
         
         currentFilter = CIFilter(name: actionTitle)
+        
+        changeFilterButton.setTitle(actionTitle, for: .normal)
         
         setCurrentImageAsInput()
         applyProcessing()
