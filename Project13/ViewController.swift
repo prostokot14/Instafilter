@@ -13,6 +13,7 @@ final class ViewController: UIViewController {
     
     @IBOutlet private var imageView: UIImageView!
     @IBOutlet private var intensity: UISlider!
+    @IBOutlet private var radius: UISlider!
     @IBOutlet private var changeFilterButton: UIButton!
     
     // MARK: - Private properties
@@ -37,28 +38,28 @@ final class ViewController: UIViewController {
     
     // MARK: - Private methods
     
-    private func applyProcessing() {
+    private func applyProcessing(filterType: String = kCIInputIntensityKey + kCIInputRadiusKey) {
         guard let image = currentFilter.outputImage else { return }
         
         let inputKeys = currentFilter.inputKeys
         
-        if inputKeys.contains(kCIInputIntensityKey) {
-            currentFilter.setValue(intensity.value, forKey: kCIInputIntensityKey)
-        }
-        
-        if inputKeys.contains(kCIInputRadiusKey) {
-            currentFilter.setValue(intensity.value * 200, forKey: kCIInputRadiusKey)
-        }
-        
-        if inputKeys.contains(kCIInputScaleKey) {
-            currentFilter.setValue(intensity.value * 10, forKey: kCIInputScaleKey)
-        }
-        
-        if inputKeys.contains(kCIInputCenterKey) {
-            currentFilter.setValue(
-                CIVector(x: currentImage.size.width / 2, y: currentImage.size.height / 2),
-                forKey: kCIInputCenterKey
-            )
+        switch filterType {
+        case kCIInputIntensityKey:
+            if inputKeys.contains(kCIInputIntensityKey) {
+                currentFilter.setValue(intensity.value, forKey: kCIInputIntensityKey)
+            }
+        case kCIInputRadiusKey:
+            if inputKeys.contains(kCIInputRadiusKey) {
+                currentFilter.setValue(intensity.value * 200, forKey: kCIInputRadiusKey)
+            }
+        default:
+            if inputKeys.contains(kCIInputIntensityKey) {
+                currentFilter.setValue(intensity.value, forKey: kCIInputIntensityKey)
+            }
+            
+            if inputKeys.contains(kCIInputRadiusKey) {
+                currentFilter.setValue(intensity.value * 200, forKey: kCIInputRadiusKey)
+            }
         }
         
         if let cgImage = context.createCGImage(image, from: image.extent) {
@@ -142,8 +143,12 @@ final class ViewController: UIViewController {
         UIImageWriteToSavedPhotosAlbum(image, self, #selector(image(_:didFinishSavingWithError:contextInfo:)), nil)
     }
     
-    @IBAction func intensityChanged(_ sender: Any) {
-        applyProcessing()
+    @IBAction func intensityChanged(_ sender: UISlider) {
+        applyProcessing(filterType: kCIInputIntensityKey)
+    }
+    
+    @IBAction func radiusChanged(_ sender: UISlider) {
+        applyProcessing(filterType: kCIInputRadiusKey)
     }
 }
 
