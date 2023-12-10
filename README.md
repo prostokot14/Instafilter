@@ -10,3 +10,4 @@ The application imports photos from the user library, adds filters and saves the
 * UIImagePickerController
 * UIImageWriteToSavedPhotosAlbum
 * UIView.animate
+* UISlider
